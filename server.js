@@ -6,9 +6,21 @@ var settings = {
     intervalTime: 1000, // one second,
 };
 
+/**
+* This is the acutal http request. You can add/remove headers and stuff here
+*/
 var scrape = function(url, callback) {
-    //The actual HTTP request
-    request(url, function(error, response, body) {
+
+    var options = {
+        url: url,
+        headers: {
+            'Accept': 'application/json',
+            'Accept-Language': 'sv-SE,sv;q=0.8,en-US;q=0.6,en;q=0.4',
+            'Content-Type': 'application/json'
+        }
+    };
+
+    request(options, function(error, response, body) {
         if (error) throw error;
         callback(body, response.statusCode);
     });
@@ -36,12 +48,23 @@ var addToQueue = function() {
     }
 }
 
+/**
+ * TODO: implement logic for exiting the scraping. If you return false here, the interval will stop
+ */
+var IShouldTerminate = function(){
+    return false; 
+}
 
 /**
  * TODO: implement logic for getting the next url to scrape
  */
 var getNextUrl = function() {
     //You need to have some kind of logic to get the next url to fetch. use a global counter or something. 
+
+    //This stops the intervall if IShouldTerminate returns true
+    if(IShouldTerminate()){
+        clearInterval(intervalId);
+    }
     return "http://www.google.com";
 }
 
@@ -53,7 +76,7 @@ var proccessHttp = function(http) {
 /**
  * Main loop of the program
  */
-setInterval(function() {
+var intervalId = setInterval(function() {
 
     //Remove all that was done from the queue
     var tmp = [];
